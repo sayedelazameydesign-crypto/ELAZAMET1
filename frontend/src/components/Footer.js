@@ -28,6 +28,7 @@ const Footer = () => {
             </div>
             <div className="footer-bottom">
                 <p>&copy; {new Date().getFullYear()} CELIA FASHION DESIGN. All rights reserved.</p>
+                <p className="developer-credit">Developed by: Sayed El-Azamey Design</p>
             </div>
         </footer>
     );

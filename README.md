@@ -63,5 +63,5 @@
 *   **Backends:** Render أو Railway (يوفرون خطط مجانية).
 
 ---
-**تم التطوير بواسطة:** سيد العظمي ديزاين (Sayed El-Azamey Design)
+**تم التطوير بواسطة:** سيد العزامي ديزاين (Sayed El-Azamey Design)
 **للتواصل:** 01126212452 | sayedelazameydesign@gmail.com
