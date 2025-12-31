@@ -1,0 +1,141 @@
+.size-guide-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s;
+}
+
+.size-guide-modal {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 400px;
+    max-width: 90%;
+    position: relative;
+    text-align: center;
+    direction: rtl;
+    /* Arabic support */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.size-guide-modal h3 {
+    margin-top: 0;
+    color: #1a1a1a;
+}
+
+.input-row {
+    margin: 20px 0;
+    text-align: right;
+}
+
+.input-row label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #444;
+}
+
+.input-row input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.fit-options {
+    display: flex;
+    gap: 10px;
+}
+
+.fit-options button {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background: #f9f9f9;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.fit-options button.selected {
+    background: #e6b800;
+    color: white;
+    border-color: #e6b800;
+    font-weight: bold;
+}
+
+.analyze-btn {
+    width: 100%;
+    padding: 15px;
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.analyze-btn:hover {
+    background: #333;
+}
+
+.result-circle {
+    width: 120px;
+    height: 120px;
+    background: #e6b800;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+    box-shadow: 0 5px 15px rgba(230, 184, 0, 0.4);
+}
+
+.result-circle span {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.result-circle strong {
+    font-size: 3rem;
+}
+
+.ai-advice {
+    background: #f0fdf4;
+    color: #166534;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    border: 1px solid #bbf7d0;
+}
+
+.retry-btn {
+    background: none;
+    border: none;
+    color: #666;
+    margin-top: 15px;
+    cursor: pointer;
+    text-decoration: underline;
+}
