@@ -29,7 +29,8 @@
    - **Root Directory:** `ml-backend`
    - **Runtime:** Python 3
    - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `uvicorn app:app --host 0.0.0.0 --port 10000`
+   - **Start Command (Production):** `gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app`
+   - *(Option 2 - Simple):* `uvicorn app:app --host 0.0.0.0 --port 10000`
    - **Environment Variables:** أضف `OPENAI_API_KEY`.
 3. انسخ رابط السيرفر (مثلاً `https://celia-ai.onrender.com`).
 
