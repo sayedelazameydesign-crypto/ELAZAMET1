@@ -18,6 +18,7 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 XAI_API_KEY = os.getenv("XAI_API_KEY")
+HF_TOKEN = os.getenv("HF_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./enhanced_store.db")
 
 # إعداد Gemini إذا توفر المفتاح
@@ -112,7 +113,28 @@ def call_ai(prompt: str):
             print(f"xAI Error: {str(e)}")
             pass
 
-    # 3. محاولة استخدام OpenAI
+    # 3. محاولة استخدام Hugging Face (Llama-3 عبر Inference API)
+    if HF_TOKEN:
+        try:
+            # استخدام موديل Llama-3 القوي
+            API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
+            headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+            payload = {
+                "inputs": f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nأنت مساعد ذكي لمتجر CELIA FASHION DESIGN للأزياء. رد دائماً بالعربية بأسلوب جميل ومختصر.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+                "parameters": {"max_new_tokens": 500, "temperature": 0.7}
+            }
+            response = requests.post(API_URL, headers=headers, json=payload)
+            if response.status_code == 200:
+                result = response.json()
+                # تنظيف الرد من الـ prompt
+                full_text = result[0]['generated_text']
+                ai_response = full_text.split("assistant")[-1].strip().replace("<|eot_id|>", "")
+                return ai_response
+        except Exception as e:
+            print(f"Hugging Face Error: {str(e)}")
+            pass
+
+    # 4. محاولة استخدام OpenAI
     if openai.api_key != "YOUR_OPENAI_API_KEY":
         try:
             response = openai.ChatCompletion.create(
