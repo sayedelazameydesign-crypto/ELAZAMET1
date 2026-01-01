@@ -10,12 +10,14 @@ from collections import Counter, defaultdict
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
+import requests
 
 load_dotenv()
 
 # --- إعدادات قاعدة البيانات و AI ---
 openai.api_key = os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+XAI_API_KEY = os.getenv("XAI_API_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./enhanced_store.db")
 
 # إعداد Gemini إذا توفر المفتاح
@@ -85,10 +87,32 @@ def call_ai(prompt: str):
             return response.text
         except Exception as e:
             print(f"Gemini Error: {str(e)}")
-            # إذا فشل Gemini، ننتقل لـ OpenAI
             pass
 
-    # 2. محاولة استخدام OpenAI
+    # 2. محاولة استخدام xAI (Grok)
+    if XAI_API_KEY:
+        try:
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {XAI_API_KEY}"
+            }
+            data = {
+                "messages": [
+                    {"role": "system", "content": "أنت مساعد ذكي لمتجر CELIA FASHION DESIGN المتخصص في بيع الملابس والأزياء العصرية. رد دائماً باللغة العربية بأسلوب احترافي."},
+                    {"role": "user", "content": prompt}
+                ],
+                "model": "grok-beta", # أو grok-2 إذا كان متاحاً
+                "stream": False,
+                "temperature": 0.7
+            }
+            response = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=data)
+            if response.status_code == 200:
+                return response.json()['choices'][0]['message']['content']
+        except Exception as e:
+            print(f"xAI Error: {str(e)}")
+            pass
+
+    # 3. محاولة استخدام OpenAI
     if openai.api_key != "YOUR_OPENAI_API_KEY":
         try:
             response = openai.ChatCompletion.create(
