@@ -3,9 +3,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './ProductList.css';
 
-// --- التعديل هنا: وضع الروابط مباشرة ---
-const backendURL = "http://localhost:5001";
-const mlBackendURL = "http://localhost:5000"; // افترضنا أن محرك التوصيات على 5000
+// --- استخدام متغيرات البيئة للمرونة والأمان ---
+const backendURL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
+const mlBackendURL = process.env.REACT_APP_ML_BACKEND_URL || "http://localhost:8000";
 // ---------------------------------------
 
 function ProductList({ addToCart, refreshFlag, searchTerm = '', toggleWishlist, wishlistItems = [] }) {

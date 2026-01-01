@@ -26,13 +26,19 @@
 
 ## 🚀 طريقة التشغيل محلياً (Local Setup)
 
+> **ملاحظة:** راجع ملف `SETUP_GUIDE.md` للحصول على دليل مفصل خطوة بخطوة.
+
 1.  **استنسخ المستودع:**
     ```bash
     git clone https://github.com/your-username/celia-fashion-store.git
     cd celia-fashion-store
     ```
 
-2.  **تشغيل الواجهة الأمامية (Frontend):**
+2.  **إعداد متغيرات البيئة:**
+    - في كل مجلد (frontend, backend, ml-backend)، انسخ `.env.example` إلى `.env`
+    - املأ القيم المطلوبة (MongoDB URI, OpenAI Key, إلخ)
+
+3.  **تشغيل الواجهة الأمامية (Frontend):**
     ```bash
     cd frontend
     npm install
@@ -40,7 +46,7 @@
     ```
     *الرابط:* `http://localhost:3006`
 
-3.  **تشغيل سيرفر المنتجات (Node Backend):**
+4.  **تشغيل سيرفر المنتجات (Node Backend):**
     ```bash
     cd backend
     npm install
@@ -48,7 +54,7 @@
     ```
     *الرابط:* `http://localhost:5001`
 
-4.  **تشغيل سيرفر الذكاء الاصطناعي (AI Backend):**
+5.  **تشغيل سيرفر الذكاء الاصطناعي (AI Backend):**
     ```bash
     cd ml-backend
     pip install -r requirements.txt

@@ -168,7 +168,6 @@ function App() {
         />
 
         <Route path="/orders" element={<MyOrders />} />
-        <Route path="/orders" element={<MyOrders />} />
         <Route path="/order/:id" element={<OrderDetails />} />
         <Route path="/blog" element={<Blog />} />
 

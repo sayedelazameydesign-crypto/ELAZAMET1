@@ -6,12 +6,26 @@ const axios = require('axios');
 
 const app = express();
 
+// CORS Configuration - إعدادات محسنة للأمان
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3006',
+  process.env.FRONTEND_URL || 'https://e-commerce-website-orcin-xi.vercel.app'
+].filter(Boolean);
+
 app.use(cors({
-  origin: [
-    'https://e-commerce-website-orcin-xi.vercel.app',
-    'http://localhost:3000'
-  ],
-  credentials: true
+  origin: function (origin, callback) {
+    // السماح للطلبات بدون origin (مثل Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
@@ -141,21 +155,74 @@ app.get('/api/categories', async (req, res) => {
   }
 });
 
-// Add Product
+// Add Product (with validation)
 app.post('/api/add-product', async (req, res) => {
   try {
     const { name, price, image, description, category } = req.body;
-    if (!productsCollection) return res.status(500).json({ error: "DB not connected" });
-    const newProduct = { name, price: parseFloat(price), image, description, category };
+
+    // Validation
+    if (!name || !price || !category) {
+      return res.status(400).json({ error: "Name, price, and category are required" });
+    }
+
+    if (typeof name !== 'string' || name.trim().length < 3) {
+      return res.status(400).json({ error: "Product name must be at least 3 characters" });
+    }
+
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
+      return res.status(400).json({ error: "Price must be a positive number" });
+    }
+
+    if (!productsCollection) {
+      return res.status(500).json({ error: "DB not connected" });
+    }
+
+    const newProduct = {
+      name: name.trim(),
+      price: parsedPrice,
+      image: image || '',
+      description: description || '',
+      category: category.trim()
+    };
+
     await productsCollection.insertOne(newProduct);
     res.json({ message: "Product added successfully", product: newProduct });
   } catch (err) {
+    console.error('Add product error:', err.message);
     res.status(500).json({ error: "Failed to add product" });
   }
 });
 
-// تشغيل السيرفر على منفذ 5001 لضمان عدم التعارض
-const PORT = 5001;
+// Delete Product (MongoDB only - DummyJSON products cannot be deleted)
+app.delete('/api/delete-product/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate MongoDB ObjectId
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid product ID format" });
+    }
+
+    if (!productsCollection) {
+      return res.status(500).json({ error: "DB not connected" });
+    }
+
+    const result = await productsCollection.deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    res.json({ message: "Product deleted successfully" });
+  } catch (err) {
+    console.error('Delete error:', err.message);
+    res.status(500).json({ error: "Failed to delete product" });
+  }
+});
+
+// تشغيل السيرفر - يستخدم PORT من البيئة أو 5001 كافتراضي
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

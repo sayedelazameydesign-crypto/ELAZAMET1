@@ -44,11 +44,18 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Smart AI & Recommendation System")
 
 # --- إعدادات الـ CORS لربط المتجر (Vercel / Localhost) ---
+# تحديد المصادر المسموحة بدقة للأمان
+allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:3006",
+    os.getenv("FRONTEND_URL", "https://e-commerce-website-orcin-xi.vercel.app")
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allow all for development to avoid port issues
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -124,17 +131,8 @@ def calculate_similarity(p1, p2):
 # ==========================================
 # الجزء الثاني: مهام المساعد الذكي (OpenAI)
 # ==========================================
+# (تم دمج دالة call_ai في الأعلى - سطر 63)
 
-def call_ai(prompt: str):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "system", "content": "أنت مساعد ذكي لمتجر CELIA FASHION DESIGN المتخصص في بيع الملابس والأزياء العصرية. معلومات الاتصال: هاتف 01126212452 - إيميل sayedelazameydesign@gmail.com"},
-                      {"role": "user", "content": prompt}]
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"عذراً، واجهت مشكلة في الاتصال بالمساعد الذكي: {str(e)}"
 
 # ==========================================
 # الـ Endpoints (نقاط الاتصال)
