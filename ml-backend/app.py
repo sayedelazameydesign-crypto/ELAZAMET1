@@ -9,13 +9,18 @@ import random
 from collections import Counter, defaultdict
 import os
 from dotenv import load_dotenv
+import google.generativeai as genai
 
 load_dotenv()
 
-# --- إعدادات قاعدة البيانات و OpenAI ---
-# --- إعدادات قاعدة البيانات و OpenAI ---
+# --- إعدادات قاعدة البيانات و AI ---
 openai.api_key = os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./enhanced_store.db")
+
+# إعداد Gemini إذا توفر المفتاح
+if GOOGLE_API_KEY:
+    genai.configure(api_key=GOOGLE_API_KEY)
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -68,17 +73,35 @@ def mock_ai_response(prompt):
     return "هذا رد تجريبي من المساعد الذكي (لأن مفتاح OpenAI غير مفعل). المنتج رائع ومناسب لك!"
 
 def call_ai(prompt: str):
-    if openai.api_key == "YOUR_OPENAI_API_KEY":
-        return mock_ai_response(prompt)
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "system", "content": "أنت مساعد ذكي لمتجر CELIA FASHION DESIGN المتخصص في بيع الملابس والأزياء العصرية. معلومات الاتصال: هاتف 01126212452 - إيميل sayedelazameydesign@gmail.com"},
-                      {"role": "user", "content": prompt}]
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"عذراً، واجهت مشكلة في الاتصال بالمساعد الذكي: {str(e)}"
+    # نظام الأولوية: Gemini أولاً (لأنه مجاني) ثم OpenAI
+    
+    # 1. محاولة استخدام Google Gemini
+    if GOOGLE_API_KEY:
+        try:
+            model = genai.GenerativeModel('gemini-pro')
+            system_instruction = "أنت مساعد ذكي لمتجر CELIA FASHION DESIGN المتخصص في بيع الملابس والأزياء العصرية. معلومات الاتصال: هاتف 01126212452 - إيميل sayedelazameydesign@gmail.com. رد دائماً باللغة العربية بأسلوب ودود ومحترف."
+            chat = model.start_chat(history=[])
+            response = chat.send_message(f"{system_instruction}\n\nUser Question: {prompt}")
+            return response.text
+        except Exception as e:
+            print(f"Gemini Error: {str(e)}")
+            # إذا فشل Gemini، ننتقل لـ OpenAI
+            pass
+
+    # 2. محاولة استخدام OpenAI
+    if openai.api_key != "YOUR_OPENAI_API_KEY":
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "system", "content": "أنت مساعد ذكي لمتجر CELIA FASHION DESIGN المتخصص في بيع الملابس والأزياء العصرية. معلومات الاتصال: هاتف 01126212452 - إيميل sayedelazameydesign@gmail.com"},
+                          {"role": "user", "content": prompt}]
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"OpenAI Error: {str(e)}")
+    
+    # 3. الرد التجريبي كخيار أخير
+    return mock_ai_response(prompt)
 
 # الاعتمادية للحصول على جلسة DB
 def get_db():
